@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<robot name="cube">
+  <link name="object/center/">
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+       <box size="0.036 0.036 0.036" />
+	 	<!-- <mesh filename="package://digit_inhand/urdfs/cube_flat_corner.STL" scale="1. 1. 1."/> -->
+      </geometry>
+    </collision>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.036 0.036 0.036" />
+      <!-- <mesh filename="package://digit_inhand/urdfs/cube_flat_corner.STL" scale="1. 1. 1."/> -->
+      </geometry>
+       <material name="white">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+  </link>
+</robot>

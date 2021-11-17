@@ -1,0 +1,35 @@
+<launch>
+    <!-- sphere -->
+    <arg name="obj_shape" default ="sphere" />
+    <arg name="bag_name" default ="digit-0.5mm-ball-bearing-zup_2021-08-31-21-37-35" />
+
+    <!-- cube -->
+    <!-- <arg name="obj_shape" default ="cube" /> -->
+    <!-- <arg name="bag_name" default ="digit-cube-corner-zup_2021-08-31-21-51-20" /> -->
+    <!-- <arg name="bag_name" default ="digit-flatcorner-lowshadow_2021-09-10-21-36-16" /> -->
+    <!-- <arg name="bag_name" default ="digit-flatcorner_2021-09-10-21-13-17" /> -->
+
+    <!-- bag srcdir -->
+    <arg name="srcdir_bag" default ="/home/paloma/code/fair_ws/tactile-in-hand/data_collection/digit_inhand/local/bags/" />
+    
+    <!-- start tf broadcaster node -->
+    <param name="obj_shape" type="string" value="$(arg obj_shape)" />
+    <node pkg="digit_inhand" name="tf_broadcaster" type="TFBroadcaster.py" output="screen" />
+
+    <!-- static transforms -->
+    <!-- <node pkg="tf" type="static_transform_publisher" name="sphere" args="0.07 -0.0675 0.09 0 0 0 world object/center/ 100"/> -->
+    <node pkg="tf" type="static_transform_publisher" name="cube" args="-0.15 -0.1475 0.02 0 0 0 world object/center/ 100"/>
+
+    <!-- object model for rviz -->
+    <param name="robot_description" textfile="$(find digit_inhand)/urdfs/$(arg obj_shape).urdf" />
+
+    <!-- start inhandpy dataset csv writer node -->
+    <param name="bag_name" type="string" value="$(arg bag_name)" />
+    <param name="dstdir_dataset" type="string" value="$(find digit_inhand)/local/datasets/inhandpy/" />
+    <node pkg="digit_inhand" name="inhandpy_dataset_csv_writer" type="InhandpyDatasetCSVWriter.py" output="screen" />
+
+    <!-- start rosbag playback -->
+    <arg name="bagfile" default="$(arg srcdir_bag)/$(arg bag_name).bag" />
+    <node pkg="rosbag" type="play" name="player" output="screen" args="--clock --rate 1. -s 0 --pause $(arg bagfile)"/>
+
+</launch>

@@ -1,0 +1,17 @@
+<robot name="sphere">
+    <link name="object/center/">
+        <collision>
+            <geometry>
+                <sphere radius="0.0127"/>
+            </geometry>
+        </collision>
+        <visual>
+            <geometry>
+                <sphere radius="0.0127"/>
+            </geometry>
+            <material name="brown">
+                <color rgba=".44 .33 .24 1.0"/>
+            </material>
+        </visual>
+    </link>
+</robot>
