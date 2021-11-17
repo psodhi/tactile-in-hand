@@ -1,0 +1,132 @@
+# scripts: graphopt/*.py
+
+# dataset_names: ['tacto/cube/dataset_0000/', 'tacto/cube/dataset_0001/']
+# dataset_names: ['tacto/toy_brick/dataset_0001/']
+# dataset_names: ['real/sphere/digit-0.5mm-ball-bearing-zup_2021-08-31-21-37-35']
+dataset_names: ['real/cube/digit-flatcorner_2021-09-10-21-13-17']
+
+real: True
+
+prefix: ""
+random_seed: 0
+
+method_type: proposed # [const_vel, scan2scan, proposed, global]
+
+transforms:
+
+dataloader:
+  batch_size: 1 
+  shuffle: False
+  num_workers: 8
+
+  downsample_imgs: False
+  img_types: ['color']
+
+  digit_id: 'bot'
+
+logger:
+  enable: True
+  save_csv: True
+  save_step_freq: 10
+
+pix2pix:
+  model_name: sim_sphere_sim_cube_real_sphere
+  model_type: pix2pix
+  direction: AtoB
+  dataset_mode: aligned
+  netG: unet_256
+
+  debug_vis: False
+
+sensor:
+  mesh_name: adigit.STL
+  
+  # T_cam_offset: [[2.22e-16, 2.22e-16, -1.00e+00, 0.00e+00],
+  #               [-1.00e+00, 0.00e+00, -2.22e-16, 0.00e+00], 
+  #               [0.00e+00, 1.00e+00, 2.22e-16, 1.50e-02],
+  #               [0.00e+00, 0.00e+00, 0.00e+00, 1.00e+00]]
+
+  # T_cam_offset: [[1., 0., 0., 0.],
+  #               [0., 1., 0., 0.],
+  #               [0., 0., 1., 0.],
+  #               [0., 0., 0., 1.]]
+
+  # rotation of +180 degrees about x-axis
+  # T_cam_offset: [[1., 0., 0., 0.],
+  #               [0., -1., 0., 0.],
+  #               [0., 0., -1., 0.], # -0.0254
+  #               [0., 0., 0., 1.]]
+
+  # rotation of +90 degrees about x-axis
+  T_cam_offset: [[1., 0., 0., 0.],
+                [0., 0., -1, 0.],
+                [0., 1., 0., 0.],
+                [0., 0., 0., 1.]]
+
+  P:  [[2.30940108e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00],
+       [0.00000000e+00, 1.73205081e+00, 0.00000000e+00, 0.00000000e+00],
+       [0.00000000e+00, 0.00000000e+00, -1.04081633e+00, -2.04081633e-03],
+       [0.00000000e+00, 0.00000000e+00, -1.00000000e+00, 0.00000000e+00]]
+  
+  z_near: 0.001
+  z_far: 0.05
+
+  # gel min depth: 0.01910434
+  gel_depth_map_loc: local/resources/gel_depth_map.csv
+  gel_depth_offset: 1e-4
+
+  gel_width: 0.06 # 0.02: gel width (y-axis) in meters
+  gel_height: 0.09 # 0.03: gel height (x-axis) in meters
+
+object:
+
+  # textured_cube_rounded.obj, toy_brick.obj, toy_human.obj
+  mesh_name: atextured_cube_rounded.obj
+  mesh_scaling: 0.05
+
+  # cube: 0.15, toy_brick: 0.05, toy_human: 0.1
+  global_scaling: 0.1
+  
+  use_prior_map: False
+  prior_map_type: voxel # cloud, voxel
+
+noise_models:
+  first_pose_prior: [1e-5, 1e-5, 1e-5, 1e-5, 1e-5, 1e-5]
+  ee_pose_prior: [1e-5, 1e-5, 1e-5, 1e-5, 1e-5, 1e-5]
+  obj_pose_prior: [1e-5, 1e-5, 1e-5, 1e-5, 1e-5, 1e-5]
+  smoothness_velocity: [1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2]
+
+  scan_to_scan_binary: [1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3]
+  scan_to_map_unary: [1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3]
+
+factors:
+  enable_scan_to_scan_binary: True
+  enable_smoothness_velocity: False
+  enable_scan_to_map_unary: False
+
+  obj_prior_interval: 1e6
+  use_gt_depth: False
+  reg_type: icp_pt2pl # icp_pt2pl, icp_pt2pt, fgr
+
+  seq_start: 15
+  seq_skip: 1
+
+  keyframe_interval: 5
+  
+  max_err_pose: 100.
+
+visualize:
+  
+  color_palette: [[0.55, 0.63, 0.80],
+  [0.89, 0.47, 0.76],
+   [0.99, 0.55, 0.38], 
+   [0.4, 0.76, 0.65],
+   [0.55, 0.55, 0.55]] # Purple, Pink, Orange, Green, Gray
+
+  # color_palette: [[0.99, 0.55, 0.38],
+  #         [0.4, 0.76, 0.65],
+  #         [0.55, 0.63, 0.8], 
+  #         [0.3, 0.3, 0.3]] # Or, Gr, Pu, Gray
+
+  vis_imgs: False
+  vis_tracker: True

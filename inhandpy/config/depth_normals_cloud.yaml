@@ -1,0 +1,46 @@
+# scripts: geometry/*.py
+
+dataset_names: ['tacto/cube/dataset_0000/']
+prefix: ""
+random_seed: 0
+
+transforms:
+
+dataloader:
+  batch_size: 1 
+  shuffle: False
+  num_workers: 8
+
+  downsample_imgs: False
+  img_types: ['color', 'depth', 'normal']
+
+  digit_id: 'bot'
+
+sensor:
+  mesh_name: adigit.STL
+  
+  T_cam_offset: [[2.22e-16, 2.22e-16, -1.00e+00, 0.00e+00],
+                [-1.00e+00, 0.00e+00, -2.22e-16, 0.00e+00], 
+                [0.00e+00, 1.00e+00, 2.22e-16, 1.50e-02],
+                [0.00e+00, 0.00e+00, 0.00e+00, 1.00e+00]]
+
+  P:  [[2.30940108e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00],
+       [0.00000000e+00, 1.73205081e+00, 0.00000000e+00, 0.00000000e+00],
+       [0.00000000e+00, 0.00000000e+00, -1.04081633e+00, -2.04081633e-03],
+       [0.00000000e+00, 0.00000000e+00, -1.00000000e+00, 0.00000000e+00]]
+  
+  z_near: 0.001
+  z_far: 0.05
+
+  # gel min depth: 0.01910434
+  gel_depth_map_loc: local/resources/gel_depth_map.csv
+  gel_depth_offset: 1e-4
+
+  gel_width: 0.02 # gel width (y-axis) in meters
+  gel_height: 0.03 # gel height (x-axis) in meters
+
+object:
+  mesh_name: textured_cube_rounded.obj # textured_cube_rounded.obj, textured_sphere_smooth.obj
+  
+  mesh_scaling: 0.05 # 0.05
+  global_scaling: 0.15 # 0.15

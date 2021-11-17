@@ -1,0 +1,7 @@
+#ifndef CONFIG_H_IN_
+#define CONFIG_H_IN_
+
+#define INHAND_EXPORT
+#define INHAND_EXTERN_EXPORT extern
+
+#endif
