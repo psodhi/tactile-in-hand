@@ -13,7 +13,7 @@ import torch
 from torch.utils.data import Dataset
 import torchvision.transforms as transforms
 
-from inhandpy.utils import data_utils
+from inhandpy.utils import utils
 
 class DigitRealImageTfSeqDataset(Dataset):
 
@@ -73,13 +73,13 @@ class DigitRealImageTfSeqDataset(Dataset):
 
         seq_data = self.seq_data_list[seq_idx]
 
-        obj_pos = torch.FloatTensor(data_utils.pandas_col_to_numpy(seq_data["obj_pos"])[0::self.seq_step])
-        obj_ori = torch.FloatTensor(data_utils.pandas_col_to_numpy(seq_data["obj_ori"])[0::self.seq_step])
+        obj_pos = torch.FloatTensor(utils.pandas_col_to_numpy(seq_data["obj_pos"])[0::self.seq_step])
+        obj_ori = torch.FloatTensor(utils.pandas_col_to_numpy(seq_data["obj_ori"])[0::self.seq_step])
         obj_ori = obj_ori.reshape(obj_ori.shape[0], 3, 3)
         obj_poses = (obj_ori, obj_pos)
 
-        digit_pos = torch.FloatTensor(data_utils.pandas_col_to_numpy(seq_data["digit_pos"])[0::self.seq_step])
-        digit_ori = torch.FloatTensor(data_utils.pandas_col_to_numpy(seq_data["digit_ori"])[0::self.seq_step])
+        digit_pos = torch.FloatTensor(utils.pandas_col_to_numpy(seq_data["digit_pos"])[0::self.seq_step])
+        digit_ori = torch.FloatTensor(utils.pandas_col_to_numpy(seq_data["digit_ori"])[0::self.seq_step])
         digit_ori = digit_ori.reshape(digit_ori.shape[0], 3, 3)
         digit_poses = (digit_ori, digit_pos)
 

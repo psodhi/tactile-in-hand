@@ -12,7 +12,7 @@ import torch
 from torch.utils.data import Dataset
 import torchvision.transforms as transforms
 
-from inhandpy.utils import data_utils
+from inhandpy.utils import utils
 
 class DigitTactoImageTfSeqDataset(Dataset):
 
@@ -74,18 +74,18 @@ class DigitTactoImageTfSeqDataset(Dataset):
 
         seq_data = self.seq_data_list[seq_idx]
 
-        obj_pos = torch.FloatTensor(data_utils.pandas_col_to_numpy(seq_data["obj_pos"])[0::self.seq_step])
-        obj_ori = torch.FloatTensor(data_utils.pandas_col_to_numpy(seq_data["obj_ori"])[0::self.seq_step])
+        obj_pos = torch.FloatTensor(utils.pandas_col_to_numpy(seq_data["obj_pos"])[0::self.seq_step])
+        obj_ori = torch.FloatTensor(utils.pandas_col_to_numpy(seq_data["obj_ori"])[0::self.seq_step])
         obj_ori = obj_ori.reshape(obj_ori.shape[0], 3, 3)
         obj_poses = (obj_ori, obj_pos)
 
-        digit_top_pos = torch.FloatTensor(data_utils.pandas_col_to_numpy(seq_data["digit_top_pos"])[0::self.seq_step])
-        digit_top_ori = torch.FloatTensor(data_utils.pandas_col_to_numpy(seq_data["digit_top_ori"])[0::self.seq_step])
+        digit_top_pos = torch.FloatTensor(utils.pandas_col_to_numpy(seq_data["digit_top_pos"])[0::self.seq_step])
+        digit_top_ori = torch.FloatTensor(utils.pandas_col_to_numpy(seq_data["digit_top_ori"])[0::self.seq_step])
         digit_top_ori = digit_top_ori.reshape(digit_top_ori.shape[0], 3, 3)
         digit_top_poses = (digit_top_ori, digit_top_pos)
 
-        digit_bot_pos = torch.FloatTensor(data_utils.pandas_col_to_numpy(seq_data["digit_bot_pos"])[0::self.seq_step])
-        digit_bot_ori = torch.FloatTensor(data_utils.pandas_col_to_numpy(seq_data["digit_bot_ori"])[0::self.seq_step])
+        digit_bot_pos = torch.FloatTensor(utils.pandas_col_to_numpy(seq_data["digit_bot_pos"])[0::self.seq_step])
+        digit_bot_ori = torch.FloatTensor(utils.pandas_col_to_numpy(seq_data["digit_bot_ori"])[0::self.seq_step])
         digit_bot_ori = digit_bot_ori.reshape(digit_bot_ori.shape[0], 3, 3)
         digit_bot_poses = (digit_bot_ori, digit_bot_pos)
 
