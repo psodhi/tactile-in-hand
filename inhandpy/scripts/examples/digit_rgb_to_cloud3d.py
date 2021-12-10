@@ -21,7 +21,9 @@ import torchvision.transforms as transforms
 
 from inhandpy.dataio.real_digit_data_loaders import DigitRealImageTfSeqDataset
 from inhandpy.dataio.sim_digit_data_loaders import DigitTactoImageTfSeqDataset
-from inhandpy.utils import geom_utils, vis_utils, data_utils
+
+from inhandpy.geometry import normals, proc3d, projection
+from inhandpy.utils import utils, vis_utils
 
 from inhandpy.thirdparty.pix2pix.options.test_options import TestOptions
 from inhandpy.thirdparty.pix2pix.models import create_model
@@ -33,7 +35,7 @@ log = logging.getLogger(__name__)
 plt.ion()
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
-CONFIG_PATH = os.path.join(BASE_PATH, "config/digit_rgb_to_cloud.yaml")        
+CONFIG_PATH = os.path.join(BASE_PATH, "config/digit_rgb_to_cloud3d.yaml")        
 
 # visualizer
 view_params = AttrDict({'fov': 60, 'front': [0.4257, -0.2125, -0.8795], 'lookat': [
@@ -55,7 +57,7 @@ def data_loader(dataset_names, params, datatype="test", setup="real"):
             img_types = ['color', 'normal', 'depth']
             dataset = DigitTactoImageTfSeqDataset(dir_dataset=f"{srcdir_dataset}/{datatype}", dataset_name=dataset_name, transform=transform,img_types=img_types, poses_flag=False)
         else:
-            logging.error(f"[digit_rgb_to_cloud::data_loader] data loader for setup {setup} not found")
+            logging.error(f"[digit_rgb_to_cloud3d::data_loader] data loader for setup {setup} not found")
         
         dataset_list.append(dataset)
 
@@ -120,7 +122,7 @@ def color_to_normal_pix2pix(img_seq_color, params_pix2pix):
 
         # post-process model output
         img_normal = ((output['fake_B']).squeeze(0) + 1) / 2.0
-        img_normal = data_utils.interpolate_img(img=img_normal, rows=160, cols=120)
+        img_normal = utils.interpolate_img(img=img_normal, rows=160, cols=120)
 
         img_seq_normal[seq_idx, :] = img_normal
     
@@ -183,20 +185,20 @@ def main(cfg):
                 bg_mask = (img_depth_gt > gel_depth).squeeze()
 
             # Step 1. normal -> grad depth
-            img_normal = geom_utils._preproc_normal(img_normal=img_normal, bg_mask=bg_mask)
-            gradx, grady = geom_utils._normal_to_grad_depth(img_normal=img_normal, gel_width=cfg.sensor.gel_width,
+            img_normal = normals.preproc_normal(img_normal=img_normal, bg_mask=bg_mask)
+            gradx, grady = normals.normal_to_grad_depth(img_normal=img_normal, gel_width=cfg.sensor.gel_width,
                                                             gel_height=cfg.sensor.gel_height, bg_mask=bg_mask)
             # Step 2. grad depth -> depth
             boundary = torch.zeros((img_normal.shape[-2], img_normal.shape[-1]))
-            img_depth = geom_utils._integrate_grad_depth(gradx, grady, boundary=boundary, bg_mask=bg_mask, max_depth=0.02)
+            img_depth = normals.integrate_grad_depth(gradx, grady, boundary=boundary, bg_mask=bg_mask, max_depth=0.02)
 
             if cfg.remove_background_depth is True:
-                img_depth = geom_utils.mask_background(img_depth, bg_mask=(img_depth >= cfg.max_depth), bg_val=0.)
+                img_depth = utils.mask_background(img_depth, bg_mask=(img_depth >= cfg.max_depth), bg_val=0.)
 
             # Step 3. depth -> points3d
             view_mat = torch.inverse(T_cam_offset)
-            points3d = geom_utils.depth_to_pts3d(depth=img_depth, P=proj_mat, V=view_mat, params=cfg.sensor)
-            points3d = geom_utils.remove_outlier_pts(points3d, nb_neighbors=20, std_ratio=10.)
+            points3d = projection.depth_to_pts3d(depth=img_depth, P=proj_mat, V=view_mat, params=cfg.sensor)
+            points3d = proc3d.remove_outlier_pts(points3d, nb_neighbors=20, std_ratio=10.)
 
             # Visualize normals/depth
             img_color_np = (img_color.permute(1,2,0)).cpu().detach().numpy()
@@ -219,7 +221,7 @@ def main(cfg):
             # visualize cloud
             if cfg.visualize.cloud:
                 cloud = o3d.geometry.PointCloud()
-                clouds = geom_utils.init_points_to_clouds(clouds=[copy.deepcopy(cloud)], points3d=[points3d])
+                clouds = proc3d.init_points_to_clouds(clouds=[copy.deepcopy(cloud)], points3d=[points3d])
                 vis_utils.visualize_geometries_o3d(vis3d=vis3d, clouds=clouds, meshes=meshes)
 
 if __name__ == '__main__':
